@@ -18,3 +18,8 @@ go-test.json
 package-lock.json
 .vscode
 **/coverage*
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
