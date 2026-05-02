@@ -2,6 +2,23 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- Replicated SDK metadata. These values are auto-populated by the
+# -- Replicated SDK at install time. No manual configuration needed.
+# -- See: https://docs.replicated.com/vendor/helm-install-values-schema
+global:
+  replicated:
+    customerName: ""
+    licenseID: ""
+    licenseType: ""
+    channelID: ""
+    channelName: ""
+    channelSequence: 0
+    releaseSequence: 0
+    releaseCreatedAt: ""
+    releaseNotes: ""
+    replicatedID: ""
+    appID: ""
+
 # -- Kubernetes DNS Domain name to use
 clusterDomain: cluster.local
 

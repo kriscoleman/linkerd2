@@ -1,0 +1,7 @@
+apiVersion: kots.io/v1beta1
+kind: Application
+metadata:
+  name: linkerd2
+spec:
+  title: linkerd2
+  icon: ""
