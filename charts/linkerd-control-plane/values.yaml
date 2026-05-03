@@ -742,3 +742,20 @@ egress:
 configReaders:
 #- name:
 #  namespace:
+
+# -- Replicated SDK metadata. These values are auto-populated by the
+# -- Replicated SDK at install time. No manual configuration needed.
+# -- See: https://docs.replicated.com/vendor/helm-install-values-schema
+global:
+  replicated:
+    customerName: ""
+    licenseID: ""
+    licenseType: ""
+    channelID: ""
+    channelName: ""
+    channelSequence: 0
+    releaseSequence: 0
+    releaseCreatedAt: ""
+    releaseNotes: ""
+    replicatedID: ""
+    appID: ""

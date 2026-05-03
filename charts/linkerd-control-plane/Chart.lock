@@ -2,5 +2,8 @@ dependencies:
 - name: partials
   repository: file://../partials
   version: 0.1.0
-digest: sha256:8e42f9c9d4a2dc883f17f94d6044c97518ced19ad0922f47b8760e47135369ba
-generated: "2021-12-06T11:42:50.784240359-05:00"
+- name: replicated
+  repository: oci://registry.replicated.com/library
+  version: 1.19.3
+digest: sha256:f388dd3a3666cd5bcc9aadf2929d471f07790dc0a1f26d20bae7cfdd8c2ececd
+generated: "2026-05-03T04:01:19.371625598Z"
