@@ -1,0 +1,16 @@
+apiVersion: kots.io/v1beta1
+kind: Application
+metadata:
+  name: {{ default "linkerd-control-plane" .Values.global.replicated.appName }}
+  labels:
+    app.kubernetes.io/name: linkerd-control-plane
+    app.kubernetes.io/part-of: Linkerd
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  title: {{ default "Linkerd Control Plane" .Values.global.replicated.appTitle }}
+  icon: https://linkerd.io/images/logo-only-200h.png
+  statusInformers:
+    - deployment/linkerd-destination
+    - deployment/linkerd-identity
+    - deployment/linkerd-proxy-injector

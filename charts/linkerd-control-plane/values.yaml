@@ -742,3 +742,25 @@ egress:
 configReaders:
 #- name:
 #  namespace:
+
+# -- Global values shared across subcharts
+global:
+  replicated:
+    # -- Replicated application name
+    appName: "linkerd-control-plane"
+    # -- Replicated application title
+    appTitle: "Linkerd Control Plane"
+    # -- Replicated license ID (set at install time)
+    licenseID: ""
+    # -- Replicated channel ID
+    channelID: ""
+    # -- Replicated channel name
+    channelName: "Stable"
+    # -- Current release sequence number
+    releaseSequence: 1
+    # -- Release created at timestamp
+    releaseCreatedAt: ""
+    # -- Release notes
+    releaseNotes: ""
+    # -- Version label for the release
+    versionLabel: ""
