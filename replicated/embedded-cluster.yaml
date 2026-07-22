@@ -1,0 +1,15 @@
+apiVersion: embeddedcluster.replicated.com/v1beta1
+kind: Config
+metadata:
+  name: embedded-cluster-config
+spec:
+  # Embedded Cluster binary version (NOT a Kubernetes version) — selects the EC
+  # v3 line via the leading "3.x". This must resolve to a PUBLISHED release at
+  # install time: https://github.com/replicatedhq/embedded-cluster/releases
+  #
+  # NOTE: as of this commit the newest published EC release line is 2.19.x; the
+  # 3.x (v3) line is not yet GA in this account's catalog. The pin below is the
+  # intended v3 target and passes `replicated release lint`, but an actual EC
+  # install cannot resolve it until a 3.x tag ships. Bump this to the exact
+  # published 3.x tag (format: 3.Y.Z+k8s-A.B) before promoting for EC use.
+  version: "3.0.0+k8s-1.32"

@@ -5,3 +5,8 @@ metadata:
 spec:
   title: Linkerd2
   icon: https://linkerd.io/images/logo-only-200h.png
+  statusInformers:
+    - deployment/linkerd-destination
+    - deployment/linkerd-identity
+    - deployment/linkerd-proxy-injector
+  ports: []

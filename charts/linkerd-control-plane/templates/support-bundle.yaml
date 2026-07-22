@@ -1,0 +1,103 @@
+{{- /*
+Replicated / Troubleshoot support-bundle spec, delivered as an in-cluster
+Secret. The Replicated SDK, KOTS, and the `support-bundle` CLI discover this
+spec by the `troubleshoot.sh/kind: support-bundle` label and read the spec
+from the `support-bundle.yaml` data key.
+*/ -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: linkerd-control-plane-support-bundle
+  namespace: {{ .Release.Namespace }}
+  labels:
+    linkerd.io/control-plane-component: support-bundle
+    linkerd.io/control-plane-ns: {{ .Release.Namespace }}
+    troubleshoot.sh/kind: support-bundle
+    {{- with .Values.commonLabels }}{{ toYaml . | trim | nindent 4 }}{{- end }}
+  annotations:
+    {{ include "partials.annotations.created-by" . }}
+type: Opaque
+stringData:
+  support-bundle.yaml: |
+    apiVersion: troubleshoot.sh/v1beta2
+    kind: SupportBundle
+    metadata:
+      name: linkerd-control-plane
+    spec:
+      collectors:
+        - clusterInfo: {}
+        - clusterResources: {}
+        - logs:
+            name: linkerd-control-plane-logs
+            namespace: {{ .Release.Namespace }}
+            selector:
+              - linkerd.io/control-plane-ns={{ .Release.Namespace }}
+            limits:
+              maxAge: 720h
+              maxLines: 100000
+        - logs:
+            name: linkerd-proxy-logs
+            namespace: {{ .Release.Namespace }}
+            selector:
+              - linkerd.io/control-plane-ns={{ .Release.Namespace }}
+            containerNames:
+              - linkerd-proxy
+            limits:
+              maxAge: 720h
+              maxLines: 100000
+        - logs:
+            name: replicated-sdk-logs
+            namespace: {{ .Release.Namespace }}
+            selector:
+              - app.kubernetes.io/name=replicated
+            limits:
+              maxAge: 720h
+              maxLines: 100000
+      analyzers:
+        - deploymentStatus:
+            checkName: Linkerd destination controller is available
+            name: linkerd-destination
+            namespace: {{ .Release.Namespace }}
+            outcomes:
+              - fail:
+                  when: "absent"
+                  message: The linkerd-destination deployment was not found.
+              - fail:
+                  when: "< 1"
+                  message: The linkerd-destination controller has no ready replicas.
+              - pass:
+                  message: The linkerd-destination controller is available.
+        - deploymentStatus:
+            checkName: Linkerd identity controller is available
+            name: linkerd-identity
+            namespace: {{ .Release.Namespace }}
+            outcomes:
+              - fail:
+                  when: "absent"
+                  message: The linkerd-identity deployment was not found.
+              - fail:
+                  when: "< 1"
+                  message: The linkerd-identity controller has no ready replicas.
+              - pass:
+                  message: The linkerd-identity controller is available.
+        - deploymentStatus:
+            checkName: Linkerd proxy injector is available
+            name: linkerd-proxy-injector
+            namespace: {{ .Release.Namespace }}
+            outcomes:
+              - fail:
+                  when: "absent"
+                  message: The linkerd-proxy-injector deployment was not found.
+              - fail:
+                  when: "< 1"
+                  message: The linkerd-proxy-injector has no ready replicas.
+              - pass:
+                  message: The linkerd-proxy-injector is available.
+        - clusterVersion:
+            checkName: Kubernetes version is supported by Linkerd
+            outcomes:
+              - fail:
+                  when: "< 1.21.0"
+                  message: Linkerd requires Kubernetes 1.21.0 or later.
+              - pass:
+                  message: Kubernetes version is supported by Linkerd.

@@ -1,0 +1,32 @@
+apiVersion: kots.io/v1beta2
+kind: HelmChart
+metadata:
+  name: linkerd-control-plane
+spec:
+  # References the packaged chart shipped in this release
+  # (linkerd-control-plane-<version>.tgz).
+  chart:
+    name: linkerd-control-plane
+    chartVersion: 0.1.2
+  releaseName: linkerd-control-plane
+  # `builder` tells the Replicated platform which subcharts to enable when
+  # scanning for images to include in the Embedded Cluster / air-gap bundle.
+  # Linkerd images are public (cr.l5d.io / ghcr.io); the SDK image is pulled
+  # through the Replicated proxy registry.
+  builder:
+    replicated:
+      enabled: true
+  # KOTS Config -> Helm values mapping. `ConfigOption` uses the Config item
+  # `name` (not its title).
+  values:
+    identityTrustDomain: 'repl{{ ConfigOption "identity_trust_domain" }}'
+    identityTrustAnchorsPEM: |
+      repl{{ ConfigOption "identity_trust_anchor" | nindent 6 }}
+    identity:
+      issuer:
+        scheme: linkerd.io/tls
+        tls:
+          crtPEM: |
+            repl{{ ConfigOption "identity_issuer_crt" | nindent 12 }}
+          keyPEM: |
+            repl{{ ConfigOption "identity_issuer_key" | nindent 12 }}

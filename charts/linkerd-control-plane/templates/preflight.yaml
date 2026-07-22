@@ -1,0 +1,96 @@
+{{- /*
+Replicated / Troubleshoot preflight spec, delivered as an in-cluster Secret.
+The Replicated SDK, KOTS, and the `preflight` CLI discover this spec by the
+`troubleshoot.sh/kind: preflight` label and read the spec from the
+`preflight.yaml` data key. Checks are tuned to pass on a healthy cluster that
+meets Linkerd's control-plane prerequisites.
+*/ -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: linkerd-control-plane-preflight
+  namespace: {{ .Release.Namespace }}
+  labels:
+    linkerd.io/control-plane-component: preflight
+    linkerd.io/control-plane-ns: {{ .Release.Namespace }}
+    troubleshoot.sh/kind: preflight
+    {{- with .Values.commonLabels }}{{ toYaml . | trim | nindent 4 }}{{- end }}
+  annotations:
+    {{ include "partials.annotations.created-by" . }}
+type: Opaque
+stringData:
+  preflight.yaml: |
+    apiVersion: troubleshoot.sh/v1beta3
+    kind: Preflight
+    metadata:
+      name: linkerd-control-plane
+    spec:
+      collectors:
+        - clusterResources: {}
+      analyzers:
+        - clusterVersion:
+            checkName: Kubernetes version
+            outcomes:
+              - fail:
+                  when: "< 1.21.0"
+                  message: >-
+                    Linkerd requires Kubernetes 1.21.0 or later. The control
+                    plane will not install on this cluster.
+                  uri: https://linkerd.io/2/reference/k8s-versions/
+              - warn:
+                  when: "< 1.23.0"
+                  message: >-
+                    This chart declares kubeVersion ">=1.23.0-0". Kubernetes
+                    1.23.0 or later is recommended for Linkerd.
+              - pass:
+                  message: Kubernetes version is supported by Linkerd.
+        - nodeResources:
+            checkName: Cluster has at least one schedulable node
+            outcomes:
+              - fail:
+                  when: "count() < 1"
+                  message: The cluster reports no nodes.
+              - pass:
+                  message: At least one node is available.
+        - nodeResources:
+            checkName: Cluster CPU is adequate for the control plane
+            outcomes:
+              - fail:
+                  when: "sum(cpuAllocatable) < 1"
+                  message: >-
+                    The Linkerd control plane needs at least 1 allocatable CPU
+                    across the cluster.
+              - warn:
+                  when: "sum(cpuAllocatable) < 2"
+                  message: >-
+                    Fewer than 2 allocatable CPUs available. The control plane
+                    will run but headroom for injected proxies is limited.
+              - pass:
+                  message: Cluster CPU is sufficient for the control plane.
+        - nodeResources:
+            checkName: Cluster memory is adequate for the control plane
+            outcomes:
+              - fail:
+                  when: "sum(memoryAllocatable) < 2Gi"
+                  message: >-
+                    The Linkerd control plane needs at least 2Gi of allocatable
+                    memory across the cluster.
+              - warn:
+                  when: "sum(memoryAllocatable) < 4Gi"
+                  message: >-
+                    Fewer than 4Gi of allocatable memory available. Consider
+                    adding capacity before injecting workloads.
+              - pass:
+                  message: Cluster memory is sufficient for the control plane.
+        - customResourceDefinition:
+            checkName: Linkerd policy CRDs are installed (linkerd-crds)
+            customResourceDefinitionName: servers.policy.linkerd.io
+            outcomes:
+              - warn:
+                  message: >-
+                    The Linkerd CRDs were not found. Install the `linkerd-crds`
+                    chart before the control plane so identity, policy, and the
+                    mTLS trust hierarchy can be established.
+                  uri: https://linkerd.io/2/tasks/install-helm/
+              - pass:
+                  message: Linkerd CRDs are present.

@@ -1,0 +1,43 @@
+apiVersion: kots.io/v1beta1
+kind: Config
+metadata:
+  name: linkerd2-config
+spec:
+  groups:
+    - name: identity
+      title: Linkerd Identity (mTLS Trust)
+      description: >-
+        Linkerd's proxy-to-proxy mTLS is anchored by a trust root and an
+        identity issuer certificate. These must be supplied at install time;
+        the control plane will not start without them. Generate a trust
+        anchor and issuer with `step` or `openssl`
+        (see https://linkerd.io/2/tasks/generate-certificates/).
+      items:
+        - name: identity_trust_domain
+          title: Trust Domain
+          type: text
+          default: "cluster.local"
+          help_text: >-
+            The identity trust domain for the mesh. Typically matches the
+            cluster domain.
+        - name: identity_trust_anchor
+          title: Trust Anchor Certificate (PEM)
+          type: textarea
+          required: true
+          help_text: >-
+            The ECDSA trust root certificate (ca.crt) in PEM format. Shared by
+            every proxy in the mesh.
+        - name: identity_issuer_crt
+          title: Identity Issuer Certificate (PEM)
+          type: textarea
+          required: true
+          help_text: >-
+            The ECDSA issuer certificate (issuer.crt), signed by the trust
+            anchor, in PEM format.
+        - name: identity_issuer_key
+          title: Identity Issuer Key (PEM)
+          type: textarea
+          required: true
+          help_text: >-
+            The private key (issuer.key) for the identity issuer certificate,
+            in PEM format. Stored as a Kubernetes Secret.
