@@ -16,6 +16,9 @@ dependencies:
   - name: partials
     version: 0.1.0
     repository: file://../partials
+  - name: replicated
+    repository: oci://registry.replicated.com/library
+    version: ">=1.17.0 <2.0.0"
 # this version will be updated by the CI before publishing the Helm tarball
 version: 0.0.0-undefined
 icon: https://linkerd.io/images/logo-only-200h.png
